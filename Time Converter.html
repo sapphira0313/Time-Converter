@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时区转换器 - 左右布局</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 500px;
+        }
+
+        .left-panel {
+            flex: 1;
+            padding: 30px;
+            background: #f8f9fa;
+            border-right: 1px solid #eee;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .input-group select, .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group select:focus, .input-group input:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+
+        .convert-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 25px auto;
+            width: 200px;
+        }
+
+        .convert-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .results-title {
+            text-align: center;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #2196F3;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .result-card.us {
+            border-left-color: #FF6B6B;
+        }
+
+        .result-card.canada {
+            border-left-color: #4ECDC4;
+        }
+
+        .result-card.uk {
+            border-left-color: #45B7D1;
+        }
+
+        .result-card.germany {
+            border-left-color: #96CEB4;
+        }
+
+        .result-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .input-time, .china-time {
+            font-size: 1.3em;
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .input-time {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .china-time {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .time-difference {
+            font-size: 1em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .example {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 5px 0;
+            color: #666;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .error-message {
+            color: #f44336;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .success-message {
+            color: #4CAF50;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+            clear: both;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 时区转换器</h1>
+            <p>左右布局 - 选择国家后输入时间，转换为中国时间</p>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="input-group">
+                    <label for="countrySelect">🌎 选择国家</label>
+                    <select id="countrySelect">
+                        <option value="">-- 请选择国家 --</option>
+                        <option value="us">🇺🇸 美国 (太平洋时间)</option>
+                        <option value="canada">🇨🇦 加拿大 (太平洋时间)</option>
+                        <option value="uk">🇬🇧 英国 (格林威治时间)</option>
+                        <option value="germany">🇩🇪 德国 (中欧时间)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="timeInput">⏰ 输入时间</label>
+                    <input type="text" id="timeInput" placeholder="格式: 2024/01/15 14:30:00">
+                    <div class="example">示例: 2024/01/15 14:30:00</div>
+                </div>
+
+                <button class="convert-btn" onclick="convertTime()">🔄 转换</button>
+                <div id="messageArea"></div>
+            </div>
+
+            <div class="right-panel">
+                <h2 class="results-title">转换结果</h2>
+                <div id="resultsContainer">
+                    <div style="text-align: center; color: #666; padding: 50px 20px;">
+                        <p>请先选择国家并输入时间进行转换</p>
+                        <p style="margin-top: 20px; font-size: 4em;">⏱️</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>支持夏令时自动计算 | 中国标准时间 (UTC+8)</p>
+        </div>
+    </div>
+
+    <script>
+        // 国家时区信息
+        const countries = {
+            us: {
+                name: "美国",
+                flag: "🇺🇸",
+                timezone: -8, // PST (冬令时)
+                timezoneName: "太平洋时间"
+            },
+            canada: {
+                name: "加拿大",
+                flag: "🇨🇦",
+                timezone: -8, // PST (冬令时)
+                timezoneName: "太平洋时间"
+            },
+            uk: {
+                name: "英国",
+                flag: "🇬🇧",
+                timezone: 0, // GMT
+                timezoneName: "格林威治时间"
+            },
+            germany: {
+                name: "德国",
+                flag: "🇩🇪",
+                timezone: 1, // CET (冬令时)
+                timezoneName: "中欧时间"
+            }
+        };
+
+        // 夏令时判断函数
+        function isDaylightSaving(date, countryKey) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const day = date.getDate();
+            
+            if (countryKey === 'us' || countryKey === 'canada') {
+                // 美国/加拿大夏令时：3月第二个周日到11月第一个周日
+                if (month > 2 && month < 10) return true;
+                if (month === 2) {
+                    const secondSunday = getNthDayOfMonth(year, 1, 0, 3);
+                    return day >= secondSunday;
+                }
+                if (month === 10) {
+                    const firstSunday = getNthDayOfMonth(year, 0, 0, 10);
+                    return day <= firstSunday;
+                }
+            } else if (countryKey === 'germany') {
+                // 德国夏令时：3月最后一个周日到10月最后一个周日
+                if (month > 2 && month < 9) return true;
+                if (month === 2) {
+                    const lastSunday = getLastDayOfMonth(year, 2, 0);
+                    return day >= lastSunday;
+                }
+                if (month === 9) {
+                    const lastSunday = getLastDayOfMonth(year, 9, 0);
+                    return day <= lastSunday;
+                }
+            }
+            return false;
+        }
+
+        // 获取某月第N个星期几
+        function getNthDayOfMonth(year, n, dayOfWeek, month) {
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysToAdd = (dayOfWeek - firstDay + 7) % 7;
+            return 1 + daysToAdd + (n * 7);
+        }
+
+        // 获取某月最后一个星期几
+        function getLastDayOfMonth(year, month, dayOfWeek) {
+            const lastDay = new Date(year, month + 1, 0);
+            const lastDayOfWeek = lastDay.getDay();
+            const daysToSubtract = (lastDayOfWeek - dayOfWeek + 7) % 7;
+            return lastDay.getDate() - daysToSubtract;
+        }
+
+        // 解析时间字符串
+        function parseTimeString(timeStr) {
+            // 支持格式: xxxx/xx/xx xx:xx:xx
+            const regex = /^(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/;
+            const match = timeStr.match(regex);
+            
+            if (!match) {
+                throw new Error('时间格式错误，请使用格式: xxxx/xx/xx xx:xx:xx');
+            }
+            
+            const [, year, month, day, hour, minute, second] = match.map(Number);
+            
+            // 验证日期有效性
+            const date = new Date(year, month - 1, day, hour, minute, second);
+            if (date.getFullYear() !== year || 
+                date.getMonth() !== month - 1 || 
+                date.getDate() !== day ||
+                date.getHours() !== hour ||
+                date.getMinutes() !== minute ||
+                date.getSeconds() !== second) {
+                throw new Error('输入的日期或时间无效');
+            }
+            
+            return date;
+        }
+
+        // 转换时间到中国时间
+        function convertToChinaTime(inputDate, countryKey) {
+            const country = countries[countryKey];
+            const baseOffset = country.timezone;
+            
+            // 检查是否为夏令时
+            const isDST = isDaylightSaving(inputDate, countryKey);
+            const actualOffset = baseOffset + (isDST ? 1 : 0); // 夏令时加1小时
+            
+            // 转换为UTC时间
+            const utcTime = new Date(inputDate.getTime() - (actualOffset * 60 * 60 * 1000));
+            
+            // 转换为中国时间 (UTC+8)
+            const chinaTime = new Date(utcTime.getTime() + (8 * 60 * 60 * 1000));
+            
+            return {
+                input: inputDate,
+                china: chinaTime,
+                isDST: isDST,
+                offset: actualOffset,
+                country: country
+            };
+        }
+
+        // 格式化显示时间
+        function formatDateTime(date) {
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '/').replace(',', '');
+        }
+
+        // 获取时差描述
+        function getTimeDifferenceDescription(offset) {
+            const diff = 8 - offset; // 中国时间(UTC+8) - 输入时间
+            if (diff > 0) {
+                return `+${diff}小时`;
+            } else if (diff < 0) {
+                return `${diff}小时`;
+            } else {
+                return '0小时';
+            }
+        }
+
+        // 转换时间函数
+        function convertTime() {
+            const messageArea = document.getElementById('messageArea');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            try {
+                // 获取选择的国家
+                const countrySelect = document.getElementById('countrySelect');
+                const selectedCountry = countrySelect.value;
+                
+                if (!selectedCountry) {
+                    throw new Error('请选择一个国家');
+                }
+                
+                // 获取输入的时间
+                const timeInput = document.getElementById('timeInput');
+                const timeStr = timeInput.value.trim();
+                
+                if (!timeStr) {
+                    throw new Error('请输入时间');
+                }
+                
+                // 解析输入的时间
+                const inputDate = parseTimeString(timeStr);
+                
+                // 转换为北京时间
+                const result = convertToChinaTime(inputDate, selectedCountry);
+                const country = result.country;
+                
+                // 显示成功消息
+                messageArea.innerHTML = '<div class="success-message">✅ 转换成功！</div>';
+                
+                // 显示结果
+                const chinaOffset = result.isDST ? result.offset + 1 : result.offset;
+                const timeDiff = getTimeDifferenceDescription(result.offset);
+                
+                resultsContainer.innerHTML = `
+                    <div class="result-card ${selectedCountry}">
+                        <h3>${country.flag} ${country.name} → 中国</h3>
+                        <div>${country.name}时间: <div class="input-time">${formatDateTime(result.input)}</div></div>
+                        <div>中国时间: <div class="china-time">${formatDateTime(result.china)}</div></div>
+                        <div class="time-difference">
+                            时差: ${timeDiff} 
+                            ${result.isDST ? '(夏令时)' : '(标准时间)'}
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                messageArea.innerHTML = `<div class="error-message">❌ ${error.message}</div>`;
+                resultsContainer.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 50px 20px;">
+                        <p>转换失败，请检查输入格式</p>
+                        <p style="margin-top: 20px; font-size: 4em;">⚠️</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认时间为当前时间
+            const now = new Date();
+            const defaultTime = formatDateTime(now).replace(' ', ' ');
+            document.getElementById('timeInput').value = defaultTime;
+            
+            // 添加回车键支持
+            document.getElementById('timeInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    convertTime();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
